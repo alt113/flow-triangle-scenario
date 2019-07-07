@@ -1,4 +1,4 @@
-name: flow
+name: flow-master
 
 dependencies:
     - python==3.5.2
