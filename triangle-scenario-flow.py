@@ -23,7 +23,16 @@ from flow.utils.registry import make_create_env
 from flow.utils.rllib import FlowParamsEncoder
 from flow.scenarios.triangle_scenario import additional_net_params
 
-def triangle_scenario_example(highway_inflow, render=None):
+"""
+    Usage: python triangle-scenario-flow.py <mode> <path/to/csv-files>
+    ----------------------------------------------------------------------
+    Note: if mode == train then no need for path to csv file
+"""
+
+def triangle_scenario_example(highway_inflow,
+                              middle_length,
+                              emission_dir,
+                              render_=False):
     # create an empty vehicles object
     vehicles = VehicleParams()
 
@@ -69,15 +78,17 @@ def triangle_scenario_example(highway_inflow, render=None):
     }
 
     # we choose to make the main highway slightly longer
-    additional_net_params["pre_merge_length"] = 150
+    additional_net_params["pre_merge_length"] = middle_length
 
     net_params = NetParams(inflows=inflow,  # our inflows
                            no_internal_links=False,
                            additional_params=additional_net_params)
 
-    sumo_params = SumoParams(render=True,
+    sumo_params = SumoParams(render=render_,
                              sim_step=0.2,
-                             emission_path='/Users/apple/Desktop/Berkeley/Repo/Flow/triange-data/')
+                             emission_path=emission_dir)
+
+# '/Users/apple/Desktop/Berkeley/Repo/Flow/triange-data/'
 
     env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
 
@@ -87,13 +98,14 @@ def triangle_scenario_example(highway_inflow, render=None):
                                      name="custom-triangle-merge-example",
                                      vehicles=vehicles,
                                      net_params=net_params,
-                                     initial_config=initial_config
-                                     )
+                                     initial_config=initial_config,
+                                     inflow_edge_len = middle_length)
 
     env = AccelEnv(env_params, sumo_params, scenario)
 
     return Experiment(env)
 
+# TODO Do I add an emission variable here?
 def stabilizing_triangle(highway_inflow):
     # experiment number
     # - 0: 10% RL penetration,  5 max controllable vehicles
@@ -223,31 +235,31 @@ def setup_exps():
     register_env(gym_name, create_env)
     return alg_run, gym_name, config
 
-def _augment_list(fromList, toList):
-    """
-        Auxiliary function to append elements
-        from one list to another
-    """
-    for _ in fromList:
-        toList.append(_)
+def run_simulations(emission_dir):
+    for x in range(1000,4000,200):
+        for r in range(200,1000,200):
+            exp = triangle_scenario_example(int(x),
+                                            r,
+                                            emission_dir,
+                                            render_=False)
+                                        # run for a set number of rollouts / time steps
+            exp.run(1, 2000, convert_to_csv=True)
+
+    print("Done simulating")
 
 if __name__ == "__main__":
     argumentList = sys.argv
     varInflows = []
+    path_to_emissions = ""
     
     for index, elem in enumerate(argumentList):
         if elem == sys.argv[0]:
             pass
         elif elem == "sample":
             # we wanna simulate to later plot
-            _augment_list(argumentList[index+1:], varInflows)
+            run_simulations(sys.argv[index+1])
             break
         elif elem == "train":
             # we wanna train
-            _augment_list(argumentList[index+1:], varInflows)
             break
 
-    for x in varInflows:
-        exp = triangle_scenario_example(int(x))
-        # run for a set number of rollouts / time steps
-        exp.run(1, 2000, convert_to_csv=True)

@@ -33,11 +33,14 @@ class TriangleMergeScenario(MergeScenario):
                  vehicles,
                  net_params,
                  initial_config=InitialConfig(),
-                 traffic_lights=TrafficLightParams()):
+                 traffic_lights=TrafficLightParams(),
+                 inflow_edge_len = INFLOW_EDGE_LEN):
         """Initialize a triangle-merge scenario."""
         for p in additional_net_params.keys():
             if p not in net_params.additional_params:
                 raise KeyError('Network parameter "{}" not supplied'.format(p))
+    
+        self.inflow_edge_len = inflow_edge_len
     
         super().__init__(name, vehicles, net_params, initial_config,
                          traffic_lights)
@@ -52,7 +55,7 @@ class TriangleMergeScenario(MergeScenario):
         nodes = [
                  {
                  "id": "inflow_highway",
-                 "x": -INFLOW_EDGE_LEN,
+                 "x": -self.inflow_edge_len,
                  "y": 0
                  },
                  {
@@ -73,8 +76,8 @@ class TriangleMergeScenario(MergeScenario):
                  },
                  {
                  "id": "inflow_merge",
-                 "x": premerge - (merge + INFLOW_EDGE_LEN) * cos(angle),
-                 "y": -(merge + INFLOW_EDGE_LEN) * sin(angle)
+                 "x": premerge - (merge + self.inflow_edge_len) * cos(angle),
+                 "y": -(merge + self.inflow_edge_len) * sin(angle)
                  },
                  {
                  "id": "bottom",
@@ -83,26 +86,26 @@ class TriangleMergeScenario(MergeScenario):
                  },{
                  "id": "center_2",
                  "y": 0,
-                 "x": -INFLOW_EDGE_LEN-1,
+                 "x": -self.inflow_edge_len-1,
                  "radius": 10
                  },{
                  "id": "inflow_merge_2",
-                 "x": -INFLOW_EDGE_LEN-1 - (merge + INFLOW_EDGE_LEN) * cos(smaller_angle),
-                 "y": -(merge + INFLOW_EDGE_LEN) * sin(smaller_angle)
+                 "x": -self.inflow_edge_len-1 - (merge + self.inflow_edge_len) * cos(smaller_angle),
+                 "y": -(merge + self.inflow_edge_len) * sin(smaller_angle)
                  },
                  {
                  "id": "bottom_2",
-                 "x": -INFLOW_EDGE_LEN-1 - merge * cos(smaller_angle),
+                 "x": -self.inflow_edge_len-1 - merge * cos(smaller_angle),
                  "y": -merge * sin(smaller_angle)
                  },{
                  "id": "inflow_highway_2",
-                 "x": -3*INFLOW_EDGE_LEN,
+                 "x": -3*self.inflow_edge_len,
                  "y": 0
                  },
                  {
                  "id": "left_2",
                  "y": 0,
-                 "x": -INFLOW_EDGE_LEN-100
+                 "x": -self.inflow_edge_len-100
                  }
                  ]
                  
@@ -131,7 +134,7 @@ class TriangleMergeScenario(MergeScenario):
                  "type": "mergeType",
                  "from": "bottom",
                  "to": "inflow_merge",
-                 "length": INFLOW_EDGE_LEN
+                 "length": self.inflow_edge_len
                  }, {
                  "id": "bottom",
                  "type": "mergeType",
@@ -156,13 +159,13 @@ class TriangleMergeScenario(MergeScenario):
                  "type": "mergeType",
                  "from": "inflow_merge_2",
                  "to": "bottom_2",
-                 "length": INFLOW_EDGE_LEN
+                 "length": self.inflow_edge_len
                  }, {
                  "id": "inflow_highway_2",
                  "type": "highwayType",
                  "from": "inflow_highway_2",
                  "to": "left_2",
-                 "length": INFLOW_EDGE_LEN
+                 "length": self.inflow_edge_len
                  }, {
                  "id": "left_2",
                  "type": "highwayType",
@@ -178,17 +181,17 @@ class TriangleMergeScenario(MergeScenario):
         premerge = self.net_params.additional_params["pre_merge_length"]
         postmerge = self.net_params.additional_params["post_merge_length"]
         
-        edgestarts = [("inflow_highway", 0), ("left", INFLOW_EDGE_LEN + 0.1),
-                      ("center", INFLOW_EDGE_LEN + premerge + 22.6),
+        edgestarts = [("inflow_highway", 0), ("left", self.inflow_edge_len + 0.1),
+                      ("center", self.inflow_edge_len + premerge + 22.6),
                       ("inflow_merge",
-                       INFLOW_EDGE_LEN + premerge + postmerge + 22.6),
+                       self.inflow_edge_len + premerge + postmerge + 22.6),
                       ("bottom",
-                       2 * INFLOW_EDGE_LEN + premerge + postmerge + 22.7),
+                       2 * self.inflow_edge_len + premerge + postmerge + 22.7),
                       #  ("center_2", -1),
                       ("inflow_merge_2", -1),
                       ("bottom_2", -2),
                       ("inflow_highway_2", -3),
-                      ("left_2", -INFLOW_EDGE_LEN + 0.1)]
+                      ("left_2", -self.inflow_edge_len + 0.1)]
                       
         return edgestarts
     
@@ -198,9 +201,9 @@ class TriangleMergeScenario(MergeScenario):
         postmerge = self.net_params.additional_params["post_merge_length"]
         
         internal_edgestarts = [
-                               (":left", INFLOW_EDGE_LEN), (":center",
-                                                            INFLOW_EDGE_LEN + premerge + 0.1),
-                               (":bottom", 2 * INFLOW_EDGE_LEN + premerge + postmerge + 22.6)
+                               (":left", self.inflow_edge_len), (":center",
+                                                            self.inflow_edge_len + premerge + 0.1),
+                               (":bottom", 2 * self.inflow_edge_len + premerge + postmerge + 22.6)
                                ]
                                
         return internal_edgestarts
@@ -220,4 +223,3 @@ class TriangleMergeScenario(MergeScenario):
         }
         
         return rts
-
