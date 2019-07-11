@@ -405,8 +405,8 @@ def get_speed_pos_merge(merge_data,
                 or edge in ["inflow_merge", "bottom", ":bottom_0"]:
                     continue
             speed[int(ti*(1/dt)), i] = spd
-                pos[int(ti*(1/dt)), i] = abs_pos
-                num_veh[int(ti*(1/dt))] += 1
+            pos[int(ti*(1/dt)), i] = abs_pos
+            num_veh[int(ti*(1/dt))] += 1
 
     # compute the average speed
     avg_speed = np.sum(speed, axis=1) / num_veh
@@ -430,10 +430,10 @@ def speed_and_density_plots():
                                                                                       num_steps=num_steps,
                                                                                       dt=dt
                                                                                       )
-                                                                                      avg_speed.append(avg_speed_baseline)
-                                                                                      num_veh.append(n_veh)
-                                                                                      num_enter_baseline.append(pos_baseline.shape[1])
-                                                                                      num_exit_baseline.append(sum(pos_baseline[-1,:]==0))
+        avg_speed.append(avg_speed_baseline)
+        num_veh.append(n_veh)
+        num_enter_baseline.append(pos_baseline.shape[1])
+        num_exit_baseline.append(sum(pos_baseline[-1,:]==0))
 
     avg_speed_baseline = np.mean(avg_speed, axis=0)
     num_veh_baseline = np.mean(num_veh, axis=0)
@@ -457,10 +457,10 @@ def speed_and_density_plots():
                                                                         num_steps=num_steps,
                                                                         dt=dt
                                                                         )
-                                                                        avg_speed.append(avg_speed_rl)
-                                                                        num_veh.append(n_veh)
-                                                                        num_enter_rl.append(pos_rl.shape[1])
-                                                                        num_exit_rl.append(sum(pos_rl[-1,:]==0))
+            avg_speed.append(avg_speed_rl)
+            num_veh.append(n_veh)
+            num_enter_rl.append(pos_rl.shape[1])
+            num_exit_rl.append(sum(pos_rl[-1,:]==0))
         rl_speed.append(np.mean(avg_speed, axis=0))
         rl_num_veh.append(np.mean(num_veh, axis=0))
 
